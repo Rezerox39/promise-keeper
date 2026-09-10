@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.promisekeeper.ui.theme.*
 
-// ── Liquid Background (applied to every screen) ──
+// ── Liquid Background ──
 @Composable
 fun LiquidBackground(
     modifier: Modifier = Modifier,
@@ -30,52 +30,32 @@ fun LiquidBackground(
     content: @Composable () -> Unit
 ) {
     val infinite = rememberInfiniteTransition(label = "bg")
-    val orbPhase by infinite.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing), RepeatMode.Restart),
-        label = "orbPhase"
-    )
     val breathe by infinite.animateFloat(
-        initialValue = 0.08f, targetValue = 0.18f,
-        animationSpec = infiniteRepeatable(tween(4000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        initialValue = 0.04f, targetValue = 0.10f,
+        animationSpec = infiniteRepeatable(tween(5000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "breathe"
     )
 
-    Box(modifier = modifier.fillMaxSize().background(
-        Brush.verticalGradient(
-            colors = listOf(BgGradientTop, BgGradientMid, BgGradientBot)
-        )
-    )) {
-        // Ambient green orb top-right
+    Box(modifier = modifier.fillMaxSize().background(BlackBase)) {
+        // Subtle green orb top-right
         Box(modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.radialGradient(
-                    colors = listOf(accentColor.copy(alpha = breathe * 0.5f), Color.Transparent),
+                    colors = listOf(accentColor.copy(alpha = breathe), Color.Transparent),
                     radius = 500f,
-                    center = androidx.compose.ui.geometry.Offset(0.85f, 0.15f)
+                    center = androidx.compose.ui.geometry.Offset(0.9f, 0.1f)
                 )
             )
         )
-        // Ambient blue orb bottom-left
+        // Subtle blue orb bottom-left
         Box(modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.radialGradient(
-                    colors = listOf(BgOrbBlue.copy(alpha = 0.06f), Color.Transparent),
-                    radius = 450f,
-                    center = androidx.compose.ui.geometry.Offset(0.15f, 0.85f)
-                )
-            )
-        )
-        // Subtle purple orb center
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(BgOrbPurple.copy(alpha = 0.04f), Color.Transparent),
-                    radius = 600f,
-                    center = androidx.compose.ui.geometry.Offset(0.5f, 0.5f)
+                    colors = listOf(InfoColor.copy(alpha = 0.03f), Color.Transparent),
+                    radius = 400f,
+                    center = androidx.compose.ui.geometry.Offset(0.1f, 0.9f)
                 )
             )
         )
@@ -83,7 +63,7 @@ fun LiquidBackground(
     }
 }
 
-// ── Liquid Glass Card ──
+// ── Glass Card ──
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
@@ -98,7 +78,7 @@ fun GlassCard(
         modifier = modifier
             .clip(shape)
             .then(
-                if (glow) Modifier.shadow(48.dp, shape, spotColor = glowColor.copy(alpha = 0.08f))
+                if (glow) Modifier.shadow(32.dp, shape, spotColor = glowColor.copy(alpha = 0.06f))
                 else Modifier
             ),
         color = Color.Transparent,
@@ -109,35 +89,21 @@ fun GlassCard(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0x14FFFFFF),  // top highlight — brighter
-                            Color(0x0CFFFFFF),  // body
-                            Color(0x08FFFFFF),  // mid
-                            Color(0x05FFFFFF)   // bottom fade
+                            Color(0x12FFFFFF),
+                            Color(0x0AFFFFFF),
+                            Color(0x07FFFFFF)
                         )
                     )
                 )
-                .border(0.5.dp, GlassBorderLight, shape)
+                .border(0.5.dp, GlassBorder, shape)
                 .padding(contentPadding)
         ) {
-            // Inner top highlight line
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(Color.Transparent, Color(0x20FFFFFF), Color.Transparent)
-                        )
-                    )
-                    .padding(bottom = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             content()
         }
     }
 }
 
-// ── Glass Button (Primary — green glow) ──
+// ── Glass Button (Primary) ──
 @Composable
 fun GlassButton(
     onClick: () -> Unit,
@@ -146,57 +112,9 @@ fun GlassButton(
     text: String,
     fontSize: TextUnit = 13.sp
 ) {
-    val shape = RoundedCornerShape(50)
-    val bgAlpha = if (enabled) 0.88f else 0.25f
-    val infinite = rememberInfiniteTransition(label = "btn")
-    val glowAnim by infinite.animateFloat(
-        initialValue = 0.15f, targetValue = 0.30f,
-        animationSpec = infiniteRepeatable(tween(2000, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "glowAnim"
-    )
-    Surface(
-        modifier = modifier
-            .clip(shape)
-            .clickable(enabled = enabled, interactionSource = remember { MutableInteractionSource() }, indication = null) { onClick() }
-            .shadow(24.dp, shape, spotColor = if (enabled) GreenCore.copy(alpha = glowAnim) else Color.Transparent),
-        color = Color.Transparent,
-        shape = shape
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            GreenBright.copy(alpha = bgAlpha),
-                            GreenCore.copy(alpha = bgAlpha * 0.85f),
-                            GreenSecondary.copy(alpha = bgAlpha * 0.7f)
-                        )
-                    )
-                )
-                .border(0.5.dp, GreenPale.copy(alpha = 0.4f), shape)
-                .padding(horizontal = 36.dp, vertical = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = text,
-                color = BlackBase,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = fontSize,
-                letterSpacing = 1.2.sp
-            )
-        }
-    }
-}
+    val shape = RoundedCornerShape(14.dp)
+    val bgAlpha = if (enabled) 0.9f else 0.2f
 
-// ── Glass Button (Secondary — transparent glass) ──
-@Composable
-fun GlassButtonSecondary(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    text: String,
-    enabled: Boolean = true
-) {
-    val shape = RoundedCornerShape(50)
     Surface(
         modifier = modifier
             .clip(shape)
@@ -208,11 +126,48 @@ fun GlassButtonSecondary(
             modifier = Modifier
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0x16FFFFFF), Color(0x0CFFFFFF))
+                        colors = listOf(
+                            GreenCore.copy(alpha = bgAlpha),
+                            GreenSecondary.copy(alpha = bgAlpha * 0.85f)
+                        )
                     )
                 )
-                .border(0.5.dp, GlassBorderLight, shape)
-                .padding(horizontal = 28.dp, vertical = 14.dp),
+                .border(0.5.dp, GreenPale.copy(alpha = 0.3f), shape)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                color = BlackBase,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = fontSize,
+                letterSpacing = 0.8.sp
+            )
+        }
+    }
+}
+
+// ── Glass Button (Secondary) ──
+@Composable
+fun GlassButtonSecondary(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    text: String,
+    enabled: Boolean = true
+) {
+    val shape = RoundedCornerShape(14.dp)
+    Surface(
+        modifier = modifier
+            .clip(shape)
+            .clickable(enabled = enabled, interactionSource = remember { MutableInteractionSource() }, indication = null) { onClick() },
+        color = Color.Transparent,
+        shape = shape
+    ) {
+        Box(
+            modifier = Modifier
+                .background(Brush.verticalGradient(listOf(Color(0x14FFFFFF), Color(0x0AFFFFFF))))
+                .border(0.5.dp, GlassBorder, shape)
+                .padding(horizontal = 24.dp, vertical = 14.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -220,7 +175,7 @@ fun GlassButtonSecondary(
                 color = GreenPale,
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
-                letterSpacing = 1.0.sp
+                letterSpacing = 0.8.sp
             )
         }
     }
@@ -234,7 +189,7 @@ fun GlassPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(50)
+    val shape = RoundedCornerShape(12.dp)
     Surface(
         modifier = modifier
             .clip(shape)
@@ -246,13 +201,13 @@ fun GlassPill(
             modifier = Modifier
                 .background(
                     if (selected) Brush.verticalGradient(
-                        listOf(GreenCore.copy(alpha = 0.18f), GreenCore.copy(alpha = 0.06f))
+                        listOf(GreenCore.copy(alpha = 0.15f), GreenCore.copy(alpha = 0.05f))
                     ) else Brush.verticalGradient(
-                        listOf(Color(0x0CFFFFFF), Color(0x06FFFFFF))
+                        listOf(Color(0x0AFFFFFF), Color(0x06FFFFFF))
                     )
                 )
-                .border(0.5.dp, if (selected) GreenCore.copy(alpha = 0.35f) else GlassBorder, shape)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .border(0.5.dp, if (selected) GreenCore.copy(alpha = 0.3f) else GlassBorder, shape)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -275,7 +230,7 @@ fun GlassTextField(
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else 3
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(12.dp)
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -284,19 +239,19 @@ fun GlassTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GreenCore.copy(alpha = 0.35f),
+            focusedBorderColor = GreenCore.copy(alpha = 0.3f),
             unfocusedBorderColor = GlassBorder,
             cursorColor = GreenCore,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,
-            focusedContainerColor = Color(0x0AFFFFFF),
-            unfocusedContainerColor = Color(0x06FFFFFF)
+            focusedContainerColor = Color(0x08FFFFFF),
+            unfocusedContainerColor = Color(0x05FFFFFF)
         ),
         shape = shape
     )
 }
 
-// ── Glass Checkbox (trust/agreement) ──
+// ── Glass Checkbox ──
 @Composable
 fun GlassCheckbox(
     checked: Boolean,
@@ -306,57 +261,24 @@ fun GlassCheckbox(
     val shape = RoundedCornerShape(6.dp)
     Box(
         modifier = modifier
-            .size(24.dp)
+            .size(22.dp)
             .clip(shape)
-            .background(
-                if (checked) GreenCore.copy(alpha = 0.15f) else Color(0x0CFFFFFF)
-            )
-            .border(
-                0.5.dp,
-                if (checked) GreenCore.copy(alpha = 0.5f) else GlassBorder,
-                shape
-            )
+            .background(if (checked) GreenCore.copy(alpha = 0.15f) else Color(0x0AFFFFFF))
+            .border(0.5.dp, if (checked) GreenCore.copy(alpha = 0.5f) else GlassBorder, shape)
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onCheckedChange(!checked) },
         contentAlignment = Alignment.Center
     ) {
-        if (checked) {
-            Text("✓", color = GreenCore, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        }
+        if (checked) Text("\u2713", color = GreenCore, fontSize = 13.sp, fontWeight = FontWeight.Bold)
     }
 }
 
 // ── Section Header ──
 @Composable
-fun SectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-    color: Color = TextTertiary
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = color,
-        letterSpacing = 1.5.sp,
-        modifier = modifier
-    )
+fun SectionHeader(title: String, modifier: Modifier = Modifier, color: Color = TextTertiary) {
+    Text(text = title, style = MaterialTheme.typography.labelLarge, color = color, letterSpacing = 1.2.sp, modifier = modifier)
 }
 
-// ── Subtitle ──
-@Composable
-fun SubtitleText(
-    text: String,
-    modifier: Modifier = Modifier,
-    color: Color = TextSecondary
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = color,
-        modifier = modifier
-    )
-}
-
-// ── Green Glow Pill ──
+// ── Glow Pill ──
 @Composable
 fun GlowPill(text: String, modifier: Modifier = Modifier, glow: Boolean = true) {
     val shape = RoundedCornerShape(50)
@@ -364,52 +286,32 @@ fun GlowPill(text: String, modifier: Modifier = Modifier, glow: Boolean = true) 
         modifier = modifier
             .clip(shape)
             .background(
-                if (glow) Brush.horizontalGradient(
-                    listOf(GreenCore.copy(alpha = 0.14f), GreenCore.copy(alpha = 0.05f))
-                )
-                else Brush.horizontalGradient(listOf(Color(0x10FFFFFF), Color(0x08FFFFFF)))
+                if (glow) Brush.horizontalGradient(listOf(GreenCore.copy(alpha = 0.12f), GreenCore.copy(alpha = 0.04f)))
+                else Brush.horizontalGradient(listOf(Color(0x10FFFFFF), Color(0x06FFFFFF)))
             )
-            .border(0.5.dp, if (glow) GreenCore.copy(alpha = 0.28f) else GlassBorder, shape)
-            .padding(horizontal = 14.dp, vertical = 7.dp)
+            .border(0.5.dp, if (glow) GreenCore.copy(alpha = 0.25f) else GlassBorder, shape)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (glow) GreenPale else Color(0xFF8899AA)
-        )
+        Text(text = text, style = MaterialTheme.typography.labelMedium, color = if (glow) GreenPale else TextSecondary)
     }
 }
 
 // ── Feedback Toast ──
 @Composable
 fun FeedbackBar(positive: Boolean, message: String, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(14.dp)
     Surface(
-        modifier = modifier
-            .clip(shape)
-            .shadow(
-                16.dp, shape,
-                spotColor = if (positive) GreenCore.copy(alpha = 0.15f) else MoodSad.copy(alpha = 0.15f)
-            ),
+        modifier = modifier.clip(shape).shadow(12.dp, shape, spotColor = if (positive) GreenCore.copy(alpha = 0.12f) else MoodSad.copy(alpha = 0.12f)),
         color = if (positive) GreenCore.copy(alpha = 0.08f) else MoodSad.copy(alpha = 0.08f),
         shape = shape
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                if (positive) "✓" else "○",
-                color = if (positive) GreenPrimary else MoodSad,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                message,
-                color = if (positive) GreenPale else MoodSad,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(if (positive) "\u2713" else "\u25CB", color = if (positive) GreenPrimary else MoodSad, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(message, color = if (positive) GreenPale else MoodSad, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

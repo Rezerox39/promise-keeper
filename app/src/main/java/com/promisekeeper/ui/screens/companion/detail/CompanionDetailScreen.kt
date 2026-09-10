@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.promisekeeper.data.db.EventEntity
 import com.promisekeeper.data.model.CompanionCore
 import com.promisekeeper.data.repository.PromiseKeeperRepository
 import com.promisekeeper.ui.components.*
@@ -31,12 +30,11 @@ fun CompanionDetailScreen(companion: CompanionCore, repository: PromiseKeeperRep
 
     LiquidBackground(modifier = Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize()) {
-            ParticleBackground(particleCount = 20, maxAlpha = 0.04f)
-
+            ParticleBackground(particleCount = 15, maxAlpha = 0.03f)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 48.dp, start = 22.dp, end = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                contentPadding = PaddingValues(top = 14.dp, bottom = 48.dp, start = 20.dp, end = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -44,69 +42,47 @@ fun CompanionDetailScreen(companion: CompanionCore, repository: PromiseKeeperRep
                             IconButton(onClick = onBack) { Icon(Icons.Rounded.ArrowBack, "Back", tint = TextSecondary) }
                             Text(companion.name, color = Color.White, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Thin)
                         }
-                        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Rounded.Delete, "Delete", tint = MoodSad.copy(alpha = 0.7f)) }
+                        IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Rounded.Delete, "Delete", tint = MoodSad.copy(alpha = 0.6f)) }
                     }
                 }
-
                 item { GlassCard(Modifier.fillMaxWidth(), glow = true) { CompanionView(companion = companion, large = true) } }
-
                 item {
                     GlassCard(Modifier.fillMaxWidth()) {
-                        SectionHeader("STATS"); Spacer(Modifier.height(12.dp))
-                        StatBar("Happiness", companion.happiness, color = MoodHappy); Spacer(Modifier.height(10.dp))
-                        StatBar("Energy", companion.energy, color = InfoColor); Spacer(Modifier.height(10.dp))
-                        StatBar("Health", companion.health, color = GreenMuted); Spacer(Modifier.height(10.dp))
+                        SectionHeader("STATS"); Spacer(Modifier.height(10.dp))
+                        StatBar("Happiness", companion.happiness, color = MoodHappy); Spacer(Modifier.height(8.dp))
+                        StatBar("Energy", companion.energy, color = InfoColor); Spacer(Modifier.height(8.dp))
+                        StatBar("Health", companion.health, color = GreenMuted); Spacer(Modifier.height(8.dp))
                         StatBar("Bond", companion.bond, color = XpGold)
                     }
                 }
-
                 item {
                     GlassCard(Modifier.fillMaxWidth()) {
-                        SectionHeader("RELATIONSHIP"); Spacer(Modifier.height(8.dp))
+                        SectionHeader("RELATIONSHIP"); Spacer(Modifier.height(6.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Column {
-                                Text(companion.relationshipTitle, color = GreenPale, style = MaterialTheme.typography.titleLarge)
-                                Text("Level ${companion.level}", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-                            }
-                            GlowProgressRing(companion.xpProgress, size = 60, strokeWidth = 4f, label = "${companion.experience}", caption = "XP")
+                            Column { Text(companion.relationshipTitle, color = GreenPale, style = MaterialTheme.typography.titleLarge); Text("Level ${companion.level}", color = TextSecondary, style = MaterialTheme.typography.bodyMedium) }
+                            GlowProgressRing(companion.xpProgress, size = 56, strokeWidth = 4f, label = "${companion.experience}", caption = "XP")
                         }
-                        if (companion.streak > 0) { Spacer(Modifier.height(10.dp)); GlowPill("🔥 ${companion.streak} day streak") }
+                        if (companion.streak > 0) { Spacer(Modifier.height(8.dp)); GlowPill("\ud83d\udd25 ${companion.streak} day streak") }
                     }
                 }
-
                 if (events.isNotEmpty()) {
-                    item { Spacer(Modifier.height(4.dp)); SectionHeader("RECENT ACTIVITY") }
+                    item { Spacer(Modifier.height(2.dp)); SectionHeader("RECENT ACTIVITY") }
                     items(events.take(15)) { event ->
                         val pos = event.deltaHappiness > 0
-                        val eventShape = RoundedCornerShape(14.dp)
-                        Row(
-                            Modifier.fillMaxWidth()
-                                .background(GlassSurface, eventShape)
-                                .border(0.5.dp, GlassBorder, eventShape)
-                                .padding(horizontal = 14.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        val s = RoundedCornerShape(12.dp)
+                        Row(Modifier.fillMaxWidth().background(GlassSurface, s).border(0.5.dp, GlassBorder, s).padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(event.message, color = if (pos) GreenPale else TextSecondary, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                            Text(
-                                "${if (pos) "+" else ""}${event.deltaHappiness}♥",
-                                color = if (pos) GreenCore else MoodSad,
-                                style = MaterialTheme.typography.labelMedium
-                            )
+                            Text("${if (pos) "+" else ""}${event.deltaHappiness}\u2665", color = if (pos) GreenCore else MoodSad, style = MaterialTheme.typography.labelMedium)
                         }
                     }
                 }
             }
         }
     }
-
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            containerColor = BlackSurface3,
-            shape = RoundedCornerShape(24.dp),
+        AlertDialog(onDismissRequest = { showDeleteDialog = false }, containerColor = BlackSurface3, shape = RoundedCornerShape(20.dp),
             title = { Text("Release ${companion.name}?", color = Color.White) },
-            text = { Text("This will remove ${companion.name} and all related data. This cannot be undone.", color = TextSecondary) },
+            text = { Text("This will remove ${companion.name} and all related data.", color = TextSecondary) },
             confirmButton = { TextButton(onClick = { showDeleteDialog = false; onDeleted() }) { Text("Release", color = MoodSad) } },
             dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("Keep", color = GreenPale) } }
         )

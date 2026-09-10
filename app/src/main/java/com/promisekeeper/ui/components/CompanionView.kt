@@ -30,7 +30,7 @@ fun CompanionView(
     val emojiSize = if (large) 88.sp else 48.sp
     val circleSize = if (large) 180.dp else 100.dp
     val moodColor = when (companion.mood) {
-        Mood.THRIVING -> MoodThriving
+        Mood.THRIVING -> MoodHappy
         Mood.HAPPY -> MoodHappy
         Mood.CONTENT -> MoodContent
         Mood.NEUTRAL -> MoodNeutral

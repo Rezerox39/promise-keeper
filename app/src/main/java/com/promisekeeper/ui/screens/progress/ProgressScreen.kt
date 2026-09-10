@@ -22,31 +22,28 @@ import com.promisekeeper.ui.theme.*
 
 @Composable
 fun ProgressScreen(companion: CompanionCore?, promises: List<Promise>) {
-    val activePromises = promises.filter { it.active }
-
+    val active = promises.filter { it.active }
     LiquidBackground(modifier = Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize()) {
-            ParticleBackground(particleCount = 20, maxAlpha = 0.04f)
-
+            ParticleBackground(particleCount = 15, maxAlpha = 0.03f)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 56.dp, bottom = 120.dp, start = 22.dp, end = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                contentPadding = PaddingValues(top = 52.dp, bottom = 100.dp, start = 20.dp, end = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Column(Modifier.padding(bottom = 6.dp)) {
+                    Column(Modifier.padding(bottom = 4.dp)) {
                         Text("PROGRESS", color = TextTertiary, style = MaterialTheme.typography.labelLarge, letterSpacing = 2.sp)
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(2.dp))
                         Text(companion?.name ?: "Your Journey", color = Color.White, style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Thin)
                     }
                 }
-
                 if (companion != null) {
                     item {
                         GlassCard(Modifier.fillMaxWidth(), glow = true) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                                GlowProgressRing(companion.overallHealth, size = 90, strokeWidth = 6f, label = "${(companion.overallHealth * 100).toInt()}%", caption = "Overall")
-                                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.width(160.dp)) {
+                                GlowProgressRing(companion.overallHealth, size = 80, strokeWidth = 5f, label = "${(companion.overallHealth * 100).toInt()}%", caption = "Overall")
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.width(150.dp)) {
                                     StatBar("Happiness", companion.happiness, color = MoodHappy)
                                     StatBar("Energy", companion.energy, color = InfoColor)
                                     StatBar("Health", companion.health, color = GreenMuted)
@@ -55,61 +52,50 @@ fun ProgressScreen(companion: CompanionCore?, promises: List<Promise>) {
                             }
                         }
                     }
-
                     item {
                         GlassCard(Modifier.fillMaxWidth()) {
                             SectionHeader("MILESTONES")
-                            Spacer(Modifier.height(12.dp))
+                            Spacer(Modifier.height(10.dp))
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                                MilestoneColumn("Level", "${companion.level}", GreenPale)
-                                MilestoneColumn("Streak", "${companion.streak}d", StreakFire)
-                                MilestoneColumn("XP", "${companion.experience}", XpGold)
-                                MilestoneColumn("Bond", "${companion.bond}%", GreenCore)
+                                Milestone("Level", "${companion.level}", GreenPale)
+                                Milestone("Streak", "${companion.streak}d", StreakFire)
+                                Milestone("XP", "${companion.experience}", XpGold)
+                                Milestone("Bond", "${companion.bond}%", GreenCore)
                             }
                         }
                     }
-
                     item {
                         GlassCard(Modifier.fillMaxWidth()) {
-                            SectionHeader("RELATIONSHIP STATUS")
-                            Spacer(Modifier.height(8.dp))
+                            SectionHeader("RELATIONSHIP")
+                            Spacer(Modifier.height(6.dp))
                             Text(companion.relationshipTitle, color = GreenPale, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Thin)
-                            Spacer(Modifier.height(4.dp))
                             Text("Your bond grows with every kept promise.", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
-
-                    if (activePromises.isNotEmpty()) {
-                        item { SectionHeader("ACTIVE PROMISES (${activePromises.size})", modifier = Modifier.padding(top = 4.dp)) }
-                        items(activePromises) { promise ->
-                            val shape = RoundedCornerShape(16.dp)
+                    if (active.isNotEmpty()) {
+                        item { SectionHeader("ACTIVE (${active.size})", modifier = Modifier.padding(top = 2.dp)) }
+                        items(active) { p ->
+                            val shape = RoundedCornerShape(12.dp)
                             Row(
-                                Modifier.fillMaxWidth().clip(shape)
-                                    .background(GlassSurface)
-                                    .border(0.5.dp, GlassBorder, shape)
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                Modifier.fillMaxWidth().clip(shape).background(GlassSurface).border(0.5.dp, GlassBorder, shape).padding(horizontal = 14.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(Modifier.weight(1f)) {
-                                    Text(promise.title, color = Color.White, style = MaterialTheme.typography.titleMedium)
-                                    Text(
-                                        "Every day · ${String.format("%02d:%02d", promise.schedule.hour, promise.schedule.minute)}",
-                                        color = TextMuted, style = MaterialTheme.typography.bodySmall
-                                    )
+                                    Text(p.title, color = Color.White, style = MaterialTheme.typography.titleMedium)
+                                    Text("Every day \u00b7 ${String.format("%02d:%02d", p.schedule.hour, p.schedule.minute)}", color = TextMuted, style = MaterialTheme.typography.bodySmall)
                                 }
-                                GlowPill(if (promise.active) "Active" else "Paused", glow = promise.active)
+                                GlowPill(if (p.active) "Active" else "Paused", glow = p.active)
                             }
                         }
                     }
                 } else {
                     item {
-                        Spacer(Modifier.height(80.dp))
+                        Spacer(Modifier.height(70.dp))
                         GlassCard(Modifier.fillMaxWidth()) {
-                            Column(Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("📊", fontSize = 48.sp); Spacer(Modifier.height(12.dp))
+                            Column(Modifier.fillMaxWidth().padding(vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("\ud83d\udcca", fontSize = 44.sp); Spacer(Modifier.height(10.dp))
                                 Text("No data yet.", color = TextSecondary, style = MaterialTheme.typography.titleMedium)
-                                Text("Meet your companion to start tracking.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                                Text("Meet your companion to start.", color = TextMuted, style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
@@ -120,7 +106,7 @@ fun ProgressScreen(companion: CompanionCore?, promises: List<Promise>) {
 }
 
 @Composable
-private fun MilestoneColumn(label: String, value: String, color: Color) {
+private fun Milestone(label: String, value: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, color = color, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Light)
         Text(label, color = TextMuted, style = MaterialTheme.typography.labelSmall)
